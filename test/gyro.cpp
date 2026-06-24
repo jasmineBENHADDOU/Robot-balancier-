@@ -1,0 +1,52 @@
+#include <Arduino.h>
+#include <Adafruit_MPU6050.h>
+#include <Adafruit_Sensor.h>
+#include "accel.h"
+#include "gyro.h"
+
+
+float gyroY_offset = 0;
+float angle_gyro = 0;
+unsigned long last_time = 0;
+
+
+void calibrerGyro() {
+  sensors_event_t accel, gyro, temp;
+  float somme = 0;
+
+
+  for (int i = 0; i < 500; i++) {
+    mpu.getEvent(&accel, &gyro, &temp);
+    somme += gyro.gyro.y * 180.0 / PI;
+    delay(2);
+  }
+
+  gyroY_offset = somme / 500.0;
+
+  Serial.print("Offset Gyro Y = ");
+  Serial.println(gyroY_offset);
+  last_time = millis();
+} 
+
+float readGyro() {
+  sensors_event_t accel, gyro, temp;
+  mpu.getEvent(&accel, &gyro, &temp);
+
+  unsigned long current_time = millis();
+  float dt = (current_time - last_time) / 1000.0;
+  last_time = current_time;
+
+  float gyro_y_deg = gyro.gyro.y * 180.0 / PI;
+  float gyro_y_corrige = gyro_y_deg - gyroY_offset;
+  if (abs(gyro_y_corrige) < 0.1) {
+  gyro_y_corrige = 0;
+  }
+  
+  angle_gyro = angle_gyro + gyro_y_corrige * dt;
+
+  Serial.print(">AngleGyro:");
+  Serial.println(angle_gyro);
+
+  delay(20);
+  return angle_gyro;
+}
