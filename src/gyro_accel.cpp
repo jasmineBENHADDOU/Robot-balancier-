@@ -80,17 +80,24 @@ float readAngleFiltre()
     sensors_event_t accel, gyro, temp;
     mpu.getEvent(&accel, &gyro, &temp);
 
-    Serial.print("AX=");
-    Serial.print(accel.acceleration.x);
+    float ay = accel.acceleration.y;
+    float az = accel.acceleration.z;
 
-    Serial.print(" AY=");
-    Serial.print(accel.acceleration.y);
+    float angle_accel = atan2(ay, az) * 180.0 / PI;
+    angle_accel = angle_accel - angle_offset;
 
-    Serial.print(" AZ=");
-    Serial.println(accel.acceleration.z);
+    Serial.print("Angle_accel=");
+    Serial.println(angle_accel);
 
     delay(200);
-    return 0;
+
+    return angle_accel;
+}
+
+/* float readAngleFiltre()
+{
+    sensors_event_t accel, gyro, temp;
+    mpu.getEvent(&accel, &gyro, &temp);
 
     unsigned long current_time = millis();
     float dt = (current_time - last_time) / 1000.0;
