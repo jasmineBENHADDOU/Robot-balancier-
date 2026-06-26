@@ -17,10 +17,10 @@ void loop()
     float erreur = CONSIGNE - angle;
 
     // Afficher l'erreur en temps réel
-    Serial.print("Angle");
+    Serial.print(CONSIGNE);
+    Serial.print(",");
     Serial.print(angle);
-    Serial.print(" ");
-    Serial.print("Erreur");
+    Serial.print(",");
     Serial.println(erreur);
 
     delay(10);

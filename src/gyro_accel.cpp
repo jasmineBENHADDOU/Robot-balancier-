@@ -104,11 +104,6 @@ float readAngleFiltre()
     angle_filtre = ALPHA * (angle_filtre + gyro_filtre * dt)
                  + (1.0 - ALPHA) * angle_accel;
 
-    Serial.print(-90);
-    Serial.print(" ");
-    Serial.print(90);
-    Serial.print(" ");
-    Serial.println(angle_filtre);
 
     return angle_filtre;
 }
