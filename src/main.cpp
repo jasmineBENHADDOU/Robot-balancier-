@@ -1,5 +1,9 @@
 #include "accel_gyro.h"
 #include <Arduino.h>
+#include "moteurs.cpp"
+
+#include "gyro_accel.cpp"
+
 
 const float CONSIGNE = 0.0; // si le robot est droit alors l'angle de référence = 0°
 float Kp = 5.0;
@@ -9,6 +13,7 @@ void setup()
 {
     initMPU();
     calibrerGyro();
+    initMoteurs();
 }
 
 void loop()
@@ -18,6 +23,9 @@ void loop()
     // erreur = consigne - angle;
     float erreur = CONSIGNE - angle;
 
+    float commande = Kp * erreur;
+
+    moteurs(commande);
 
     // Afficher l'erreur en temps réel
     Serial.print(CONSIGNE);

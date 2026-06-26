@@ -3,7 +3,13 @@
 #include <Wire.h>
 #include <Adafruit_MPU6050.h>
 #include <Adafruit_Sensor.h>
+#include <driver/ledc.h>
 #include "accel_gyro.h"
+#include <esp32-hal-ledc.h>
+
+extern void ledcSetup(uint8_t channel, uint32_t freq, uint8_t resolution_bits);
+extern void ledcAttachPin(uint8_t pin, uint8_t channel);
+
 
 Adafruit_MPU6050 mpu;
 
@@ -16,6 +22,18 @@ float angle_filtre = 0;
 float gyro_filtre = 0;
 
 unsigned long last_time = 0;
+
+const int PWM_G = 25;
+const int DIR_G = 26;
+
+const int PWM_D = 27;
+const int DIR_D = 14;
+
+const int CANAL_PWM_G = 0;
+const int CANAL_PWM_D = 1;
+
+const int FREQ_PWM = 1000;
+const int RESOLUTION_PWM = 8;
 
 void initMPU()
 {
@@ -122,4 +140,49 @@ float readAngleFiltre()
     angle_filtre = ALPHA * (angle_filtre + gyro_filtre * dt) + (1.0 - ALPHA) * angle_accel;
 
     return angle_filtre;
+} */
+
+
+
+void stopMoteurs();
+
+void initMoteurs()
+{
+    pinMode(DIR_G, OUTPUT);
+    pinMode(DIR_D, OUTPUT);
+
+    ledcSetup(CANAL_PWM_G, FREQ_PWM, RESOLUTION_PWM);
+    ledcSetup(CANAL_PWM_D, FREQ_PWM, RESOLUTION_PWM);
+
+    ledcAttachPin(PWM_G, CANAL_PWM_G);
+    ledcAttachPin(PWM_D, CANAL_PWM_D);
+
+    stopMoteurs();
+}
+
+void moteurs(float commande)
+{
+    commande = constrain(commande, -80, 80);
+
+    int pwm = map(abs(commande), 0, 80, 0, 255);
+
+    if (commande >= 0)
+    {
+        digitalWrite(DIR_G, HIGH);
+        digitalWrite(DIR_D, HIGH);
+    }
+    else
+    {
+        digitalWrite(DIR_G, LOW);
+        digitalWrite(DIR_D, LOW);
+    }
+
+    ledcWrite(CANAL_PWM_G, pwm);
+    ledcWrite(CANAL_PWM_D, pwm);
+}
+
+void stopMoteurs()
+{
+    ledcWrite(CANAL_PWM_G, 0);
+    ledcWrite(CANAL_PWM_D, 0);
 }
