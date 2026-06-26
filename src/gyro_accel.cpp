@@ -52,7 +52,6 @@ void calibrerGyro()
     for (int i = 0; i < 500; i++)
     {
         mpu.getEvent(&accel, &gyro, &temp);
-
         float ay = accel.acceleration.y;
         float az = accel.acceleration.z;
 
@@ -81,6 +80,18 @@ float readAngleFiltre()
     sensors_event_t accel, gyro, temp;
     mpu.getEvent(&accel, &gyro, &temp);
 
+    Serial.print("AX=");
+    Serial.print(accel.acceleration.x);
+
+    Serial.print(" AY=");
+    Serial.print(accel.acceleration.y);
+
+    Serial.print(" AZ=");
+    Serial.println(accel.acceleration.z);
+
+    delay(200);
+    return 0;
+
     unsigned long current_time = millis();
     float dt = (current_time - last_time) / 1000.0;
     last_time = current_time;
@@ -101,9 +112,7 @@ float readAngleFiltre()
 
     gyro_filtre = ALPHA_GYRO * gyro_filtre + (1.0 - ALPHA_GYRO) * gyro_x_corrige;
 
-    angle_filtre = ALPHA * (angle_filtre + gyro_filtre * dt)
-                 + (1.0 - ALPHA) * angle_accel;
-
+    angle_filtre = ALPHA * (angle_filtre + gyro_filtre * dt) + (1.0 - ALPHA) * angle_accel;
 
     return angle_filtre;
 }
