@@ -5,6 +5,7 @@
 
 float Kp = 3.0;
 float Kd = 0.1;
+float Ki = 0.0;
 
 const float CONSIGNE = 0.0;
 
@@ -35,7 +36,12 @@ if (dt <= 0) dt = 0.001;
 float derivee = (erreur - erreur_precedente) / dt;
 erreur_precedente = erreur;
 
-float commande = Kp * erreur + Kd * derivee;
+float integrale = 0.02;
+
+integrale += erreur * dt;
+integrale = constrain(integrale, -50, 50);
+
+float commande = Kp * erreur + Ki * integrale + Kd * derivee;
 commande = constrain(commande, -80, 80);
 
 if (abs(angle) > 45)
@@ -47,3 +53,15 @@ else
     moteurs(commande);
 }
 }
+
+/* #include "accel.h"
+
+void setup()
+{
+    initAccel();
+}
+
+void loop()
+{
+    readAccel();
+} */
