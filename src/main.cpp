@@ -11,13 +11,19 @@ const float CONSIGNE = 0.0;
 
 float erreur_precedente = 0;
 unsigned long temps_precedent_pid = 0;
-
+float integrale = 0.0;
 
 void setup()
 {
+    Serial.begin(115200);
+
+    Serial.println("===== SETUP =====");
+
     initMPU();
     calibrerGyro();
     initMoteurs();
+
+    temps_precedent_pid = millis();
 }
 
 void loop()
@@ -36,13 +42,21 @@ if (dt <= 0) dt = 0.001;
 float derivee = (erreur - erreur_precedente) / dt;
 erreur_precedente = erreur;
 
-float integrale = 0.02;
-
 integrale += erreur * dt;
 integrale = constrain(integrale, -50, 50);
 
 float commande = Kp * erreur + Ki * integrale + Kd * derivee;
-commande = constrain(commande, -80, 80);
+commande = constrain(commande, -50, 50);
+
+// Affichage de debug
+
+Serial.print(angle);
+Serial.print(" ");
+Serial.print(erreur);
+Serial.print(" ");
+Serial.print(commande);
+Serial.print(" ");
+Serial.println(50);
 
 if (abs(angle) > 45)
 {
